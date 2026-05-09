@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { EventMailCard } from "@/features/calendar";
 import type { Email } from "./data";
+import { OTPCard, detectOtp } from "./OTPCard";
 
 export function EmailView({ email }: { email: Email | null }) {
   const [replyMenuOpen, setReplyMenuOpen] = useState(false);
@@ -81,7 +82,7 @@ export function EmailView({ email }: { email: Email | null }) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full z-40 mt-2 w-40 rounded-md border border-white/[0.12] bg-[oklch(0.15_0.005_270_/_0.88)] p-1.5 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl"
+                        className="glass-modal absolute top-full z-40 mt-2 w-40 rounded-md p-1.5"
                       >
                         <motion.button
                           whileHover={{ x: 2 }}
@@ -149,6 +150,11 @@ export function EmailView({ email }: { email: Email | null }) {
                 </div>
 
                 {email.event ? <EventMailCard event={email.event} /> : null}
+
+                {(() => {
+                  const otp = detectOtp(email.body);
+                  return otp ? <OTPCard code={otp} /> : null;
+                })()}
 
                 <ReaderBody body={email.body} />
 

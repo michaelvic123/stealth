@@ -82,7 +82,7 @@ export function NotificationsPanel({ open, onClose }: { open: boolean; onClose: 
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
-            className="glass-strong absolute right-0 top-full z-50 mt-2 w-[360px] overflow-hidden rounded-2xl"
+            className="glass-modal absolute right-0 top-full z-50 mt-2 w-[360px] overflow-hidden rounded-2xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">

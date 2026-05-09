@@ -327,4 +327,18 @@ export const emails: Email[] = [
     folder: "trash",
     avatarColor: c(4),
   },
+  {
+    id: "16",
+    from: "Stealth Security",
+    email: "security*stealth.network",
+    subject: "Your sign-in passkey",
+    preview: "Use the one-time code below to finish signing in to your account...",
+    body: "Hi Eve,\n\nWe received a sign-in request from a new device. Use the one-time passkey below to complete verification.\n\nYour OTP code: 371 400\n\nThis code expires in 10 minutes. If you didn't request this, you can safely ignore the message.\n\n— Stealth Security",
+    time: "Just now",
+    unread: true,
+    starred: false,
+    folder: "inbox",
+    labels: ["Security", "OTP"],
+    avatarColor: c(2),
+  },
 ];
