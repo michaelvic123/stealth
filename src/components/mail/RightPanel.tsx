@@ -88,7 +88,6 @@ export function RightPanel({
         </div>
       </Card>
 
-      {/* Calendar */}
       <Card>
         <SectionHeader icon={Calendar} title="Today" />
         <ul className="mt-3 space-y-2">
@@ -96,9 +95,12 @@ export function RightPanel({
             { t: "10:00", title: "Design review", color: "oklch(0.85 0.005 270)" },
             { t: "13:30", title: "1:1 with Marcus", color: "oklch(0.7 0.005 270)" },
             { t: "16:00", title: "Investor sync", color: "oklch(0.6 0.005 270)" },
-          ].map((e) => (
-            <li key={e.title} className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-white/[0.04]">
-              <span className="h-8 w-1 rounded-full" style={{ background: e.color }} />
+          ].map((event) => (
+            <li
+              key={event.title}
+              className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-white/[0.04]"
+            >
+              <span className="h-8 w-1 rounded-full" style={{ background: event.color }} />
               <div className="flex-1">
                 <div className="text-[11px] tabular-nums text-muted-foreground">{e.t}</div>
                 <div className="text-xs text-foreground">{e.title}</div>
