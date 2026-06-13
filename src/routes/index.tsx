@@ -245,9 +245,34 @@ function MailApp() {
             onOpenPalette={() => setPaletteOpen(true)}
             onOpenSettings={() => setSettingsOpen(true)}
             onShowToast={showToast}
+            filters={filters}
+            onFiltersChange={setFilters}
+            onQuickAction={(action) => {
+              setCustomFolder(null);
+              if (action === "proofs") setFolder("pending");
+              if (action === "later") setFolder("snoozed");
+              if (action === "files") {
+                setFolder("all");
+                setFilters({ ...defaultMailFilters, hasAttachments: true });
+              }
+            }}
+            onViewNotifications={() => {
+              setCustomFolder(null);
+              setFolder("inbox");
+              setFilters({ ...defaultMailFilters, unreadOnly: true });
+            }}
           />
           <div className="flex min-w-0 flex-1">
-            <EmailList emails={emails} selectedId={selectedId} onSelect={setSelectedId} folder={folder} />
+            <EmailList
+              emails={emails}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              folder={folder}
+              filters={filters}
+              customFolder={customFolder}
+              compact={preferences.compactMode}
+              showAvatars={preferences.showAvatars}
+            />
             <EmailView email={selected} actions={emailActions} />
             <RightPanel email={selected} onShowToast={showToast} />
           </div>
