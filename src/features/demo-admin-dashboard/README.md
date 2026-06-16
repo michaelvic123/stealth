@@ -101,6 +101,17 @@ The **Campaigns** section renders `CampaignSnapshots`: an admin interface for ta
 - **Restore Confirmation**: Restoring a snapshot prompts a confirmation alert detailing the active/target draft counts to prevent accidental overwrite of active draft states.
 - **Persistence**: Active draft dataset and campaign snapshots are saved in browser's local storage under unique namespaces (`demoAdminDraftDataset` and `demoAdminCampaignSnapshots`), falling back to default snapshots if empty.
 
+---
+
+## Campaign Display Tokens (`./constants/displayTokens.ts`)
+
+Display tokens are folder-local constants used to color-code campaign statuses, tag keywords, and target audiences.
+
+- **Status Tokens**: Mapping for `"active"`, `"draft"`, `"needs-review"`, and `"archived"` statuses.
+- **Tag Tokens**: Semantic colors for specific update categories (`"onboarding"`, `"welcome"`, `"stellar"`, `"security"`, `"alert"`, `"newsletter"`, `"marketing"`, `"announcement"`), with custom inputs falling back to neutral styles.
+- **Audience Tokens**: Styles for target segments (`"New Signups"`, `"High-Value Accounts"`, `"Newsletter Subscribers"`), falling back to a purple theme for arbitrary custom groups.
+- **Interactive Documentation**: A collapsible panel displaying examples of all tokens with real-time badge renderings is embedded directly at the bottom of the Campaigns tab.
+
 ### Follow-up integration (out of scope here)
 
 Connecting the produced active `Draft[]` to the live demo inbox (e.g. dispatching `loadDraft` into the shared `draftReducer`, or seeding `src/components/mail/data.ts`) is a deliberate follow-up so that no files outside `src/features/demo-admin-dashboard/` change here.
