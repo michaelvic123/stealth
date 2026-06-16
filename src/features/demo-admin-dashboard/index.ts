@@ -1,3 +1,7 @@
-// src/features/demo-admin-dashboard/index.ts
-export { default as DemoDashboard } from "./DemoDashboard";
-export * from "./types";
+export { DemoAdminDashboard } from "./DemoAdminDashboard";
+export type {
+  DashboardNavItem,
+  DashboardSection,
+  DemoAdminDashboardProps,
+  StatCard,
+} from "./types";
