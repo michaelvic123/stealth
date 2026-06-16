@@ -43,7 +43,14 @@ export interface DashboardNavItem {
 }
 
 /** The available top-level sections in the admin dashboard. */
-export type DashboardSection = "overview" | "accounts" | "mail" | "templates" | "audit";
+export type DashboardSection =
+  | "overview"
+  | "accounts"
+  | "mail"
+  | "attachments"
+  | "events"
+  | "templates"
+  | "audit";
 
 /** Props passed to the dashboard shell. */
 export interface DemoAdminDashboardProps {
@@ -107,6 +114,25 @@ export interface PresetAuditEvent {
   timestamp: string;
 }
 
+export interface PresetAttachment {
+  id: string;
+  fileName: string;
+  fileSize: string;
+  fileType: string;
+  messageSubject: string;
+  sender: string;
+}
+
+export interface PresetEvent {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  organizer: string;
+  status: "confirmed" | "tentative" | "cancelled";
+}
+
 export interface PresetScenario {
   id: PresetId;
   name: string;
@@ -114,6 +140,8 @@ export interface PresetScenario {
   stats: StatCard[];
   accounts: PresetAccount[];
   mail: PresetMail[];
+  attachments: PresetAttachment[];
+  events: PresetEvent[];
   auditEvents: PresetAuditEvent[];
 }
 

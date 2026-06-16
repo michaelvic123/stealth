@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Activity, BarChart3, FileText, LayoutDashboard, Mail, Shield, Users, X } from "lucide-react";
+import { Activity, BarChart3, FileText, LayoutDashboard, Mail, Shield, Users, X, Paperclip, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
   DashboardNavItem,
@@ -10,9 +10,12 @@ import type {
   PresetAccount,
   PresetMail,
   PresetAuditEvent,
+  PresetAttachment,
+  PresetEvent,
 } from "./types";
 import { TemplatePicker } from "./templates";
 import { PRESET_SCENARIOS } from "./fixtures/presets";
+import { AdminDataTable, type Column } from "./components/AdminDataTable";
 
 // ─── Default Deterministic fake data ──────────────────────────────────────────
 
@@ -20,6 +23,8 @@ const NAV_ITEMS: DashboardNavItem[] = [
   { id: "overview", label: "Overview", description: "High-level demo system status" },
   { id: "accounts", label: "Accounts", description: "Demo Stellar accounts and balances" },
   { id: "mail", label: "Mail", description: "Demo mail fixtures and delivery states" },
+  { id: "attachments", label: "Attachments", description: "Demo mail attachment fixtures" },
+  { id: "events", label: "Events", description: "Demo calendar and protocol events" },
   { id: "templates", label: "Templates", description: "Pick message templates to populate drafts" },
   { id: "audit", label: "Audit", description: "Demo protocol event log" },
 ];
@@ -108,12 +113,54 @@ const AUDIT_EVENTS_FAKE: PresetAuditEvent[] = [
   { action: "Postage refunded for msg_abc123", actor: "system", timestamp: "2026-06-16T09:12:00Z" },
 ];
 
+const ATTACHMENTS_FAKE: PresetAttachment[] = [
+  {
+    id: "att-inv-1042",
+    fileName: "invoice_1042.pdf",
+    fileSize: "120 KB",
+    fileType: "PDF Document",
+    messageSubject: "Invoice #1042",
+    sender: "Vendor Demo",
+  },
+  {
+    id: "att-roundtable",
+    fileName: "roundtable_agenda.pdf",
+    fileSize: "85 KB",
+    fileType: "PDF Document",
+    messageSubject: "You're invited: Stealth demo roundtable",
+    sender: "events*stealth.demo",
+  },
+];
+
+const EVENTS_FAKE: PresetEvent[] = [
+  {
+    id: "evt-roundtable",
+    title: "Stealth demo roundtable",
+    date: "2026-07-09",
+    time: "3:00 PM",
+    location: "Demo room",
+    organizer: "events*stealth.demo",
+    status: "confirmed",
+  },
+  {
+    id: "evt-sync",
+    title: "Weekly Sync",
+    date: "2026-06-18",
+    time: "10:00 AM",
+    location: "Virtual",
+    organizer: "bob*stealth.demo",
+    status: "confirmed",
+  },
+];
+
 // ─── Section icon map ─────────────────────────────────────────────────────────
 
 const SECTION_ICON: Record<DashboardSection, React.ElementType> = {
   overview: LayoutDashboard,
   accounts: Users,
   mail: Mail,
+  attachments: Paperclip,
+  events: Calendar,
   templates: FileText,
   audit: Activity,
 };
@@ -214,69 +261,88 @@ function AccountsContent({
   selectedAccountAddress: string | null;
   setSelectedAccountAddress: (addr: string | null) => void;
 }) {
+  const columns: Column<PresetAccount>[] = [
+    {
+      key: "name",
+      header: "Name",
+      sortable: true,
+      render: (acct) => (
+        <div className="flex items-center gap-2">
+          <span>{acct.name}</span>
+          {acct.relayMetadata && (
+            <span className="rounded bg-indigo-500/10 px-1.5 py-0.5 text-[9px] font-medium text-indigo-400 border border-indigo-500/20">
+              Inspectable
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "address",
+      header: "Address",
+      sortable: true,
+      render: (acct) => <span className="font-mono text-xs text-muted-foreground">{acct.address}</span>,
+    },
+    {
+      key: "balance",
+      header: "Balance",
+      sortable: true,
+      sortValue: (acct) => parseFloat(acct.balance.replace(/[^0-9.]/g, "")),
+      render: (acct) => <span className="tabular-nums">{acct.balance}</span>,
+    },
+    {
+      key: "type",
+      header: "Type",
+      sortable: true,
+      render: (acct) => (
+        <span className={cn(
+          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+          acct.type.includes("Relay") && "bg-indigo-500/10 text-indigo-400",
+          acct.type.includes("Contract") && "bg-purple-500/10 text-purple-400",
+          acct.type === "User" && "bg-white/5 text-muted-foreground"
+        )}>
+          {acct.type}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      sortValue: (acct) => acct.relayMetadata?.status ?? "none",
+      render: (acct) => {
+        const status = acct.relayMetadata?.status;
+        if (!status) return <span className="text-muted-foreground text-xs">—</span>;
+        return (
+          <span className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium uppercase text-[9px] border",
+            status === "verified" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+            status === "pending" && "bg-amber-500/10 text-amber-400 border-amber-500/20",
+            status === "failed" && "bg-rose-500/10 text-rose-400 border-rose-500/20"
+          )}>
+            {status}
+          </span>
+        );
+      },
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         Demo Stellar accounts used for populating the inbox UI. Rows with metadata can be clicked to inspect details.
       </p>
-      <div className="overflow-hidden rounded-xl border border-white/[0.06]">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-              <th className="px-4 py-3 font-medium text-muted-foreground">Name</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">Address</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">Balance</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map((acct) => {
-              const hasMetadata = !!acct.relayMetadata;
-              const isSelected = selectedAccountAddress === acct.address;
-              return (
-                <tr
-                  key={acct.address}
-                  onClick={() => {
-                    if (hasMetadata) {
-                      setSelectedAccountAddress(isSelected ? null : acct.address);
-                    }
-                  }}
-                  className={cn(
-                    "border-b border-white/[0.04] last:border-0 transition",
-                    hasMetadata ? "cursor-pointer hover:bg-white/[0.02]" : "",
-                    isSelected ? "bg-white/[0.04]" : ""
-                  )}
-                >
-                  <td className="px-4 py-3 font-medium text-foreground">
-                    <div className="flex items-center gap-2">
-                      {acct.name}
-                      {hasMetadata && (
-                        <span className="rounded bg-indigo-500/10 px-1.5 py-0.5 text-[9px] font-medium text-indigo-400 border border-indigo-500/20">
-                          Inspectable
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                    {acct.address}
-                  </td>
-                  <td className="px-4 py-3 tabular-nums text-foreground">{acct.balance}</td>
-                  <td className="px-4 py-3">
-                    <span className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
-                      acct.type.includes("Relay") && "bg-indigo-500/10 text-indigo-400",
-                      acct.type.includes("Contract") && "bg-purple-500/10 text-purple-400",
-                      acct.type === "User" && "bg-white/5 text-muted-foreground"
-                    )}>
-                      {acct.type}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <AdminDataTable
+        data={accounts}
+        columns={columns}
+        onRowClick={(acct) => {
+          if (acct.relayMetadata) {
+            setSelectedAccountAddress(selectedAccountAddress === acct.address ? null : acct.address);
+          }
+        }}
+        selectedRowKey={(acct) => selectedAccountAddress === acct.address}
+        defaultSortKey="name"
+      />
     </div>
   );
 }
@@ -290,72 +356,201 @@ function MailContent({
   selectedMailSubject: string | null;
   setSelectedMailSubject: (subject: string | null) => void;
 }) {
+  const columns: Column<PresetMail>[] = [
+    {
+      key: "subject",
+      header: "Subject",
+      sortable: true,
+      render: (item) => (
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{item.subject}</span>
+            {item.proofMetadata && (
+              <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-400 border border-emerald-500/20">
+                Has Proof
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground mt-0.5">
+            From: {item.from} ({item.email})
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (item) => (
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium border",
+            item.status === "delivered" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+            item.status === "pending" && "bg-amber-500/10 text-amber-400 border-amber-500/20",
+            item.status === "held" && "bg-rose-500/10 text-rose-400 border-rose-500/20"
+          )}
+        >
+          {item.status}
+        </span>
+      ),
+    },
+    {
+      key: "folder",
+      header: "Folder",
+      sortable: true,
+      render: (item) => <span className="text-muted-foreground">{item.folder}</span>,
+    },
+    {
+      key: "time",
+      header: "Time",
+      sortable: true,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         Mail fixtures available for populating the demo inbox. Rows with cryptographic proofs can be clicked to inspect ledger details.
       </p>
-      <div className="overflow-hidden rounded-xl border border-white/[0.06]">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-              <th className="px-4 py-3 font-medium text-muted-foreground">Subject</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
-              <th className="px-4 py-3 font-medium text-muted-foreground">Folder</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mail.map((item, i) => {
-              const hasMetadata = !!item.proofMetadata;
-              const isSelected = selectedMailSubject === item.subject;
-              return (
-                <tr
-                  key={i}
-                  onClick={() => {
-                    if (hasMetadata) {
-                      setSelectedMailSubject(isSelected ? null : item.subject);
-                    }
-                  }}
-                  className={cn(
-                    "border-b border-white/[0.04] last:border-0 transition",
-                    hasMetadata ? "cursor-pointer hover:bg-white/[0.02]" : "",
-                    isSelected ? "bg-white/[0.04]" : ""
-                  )}
-                >
-                  <td className="px-4 py-3 font-medium text-foreground">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        {item.subject}
-                        {hasMetadata && (
-                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-400 border border-emerald-500/20">
-                            Has Proof
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground mt-0.5">
-                        From: {item.from} ({item.email})
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
-                        item.status === "delivered" && "bg-emerald-500/10 text-emerald-400",
-                        item.status === "pending" && "bg-amber-500/10 text-amber-400",
-                        item.status === "held" && "bg-rose-500/10 text-rose-400",
-                      )}
-                    >
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{item.folder}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <AdminDataTable
+        data={mail}
+        columns={columns}
+        onRowClick={(item) => {
+          if (item.proofMetadata) {
+            setSelectedMailSubject(selectedMailSubject === item.subject ? null : item.subject);
+          }
+        }}
+        selectedRowKey={(item) => selectedMailSubject === item.subject}
+        defaultSortKey="time"
+        defaultSortDirection="desc"
+      />
+    </div>
+  );
+}
+
+function AttachmentsContent({
+  attachments,
+}: {
+  attachments: PresetAttachment[];
+}) {
+  const columns: Column<PresetAttachment>[] = [
+    {
+      key: "fileName",
+      header: "File Name",
+      sortable: true,
+      render: (att) => (
+        <div className="flex items-center gap-2 font-medium">
+          <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span>{att.fileName}</span>
+        </div>
+      ),
+    },
+    {
+      key: "fileSize",
+      header: "Size",
+      sortable: true,
+    },
+    {
+      key: "fileType",
+      header: "Type",
+      sortable: true,
+      render: (att) => (
+        <span className="rounded bg-white/5 px-2 py-0.5 text-[11px] font-medium text-muted-foreground border border-white/[0.04]">
+          {att.fileType}
+        </span>
+      ),
+    },
+    {
+      key: "messageSubject",
+      header: "Source Message",
+      sortable: true,
+      render: (att) => <span className="text-muted-foreground">{att.messageSubject}</span>,
+    },
+    {
+      key: "sender",
+      header: "Sender",
+      sortable: true,
+      render: (att) => <span className="font-mono text-xs text-muted-foreground">{att.sender}</span>,
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground">
+        Deterministic file attachments mock list, extracted from active mail fixtures.
+      </p>
+      <AdminDataTable
+        data={attachments}
+        columns={columns}
+        defaultSortKey="fileName"
+      />
+    </div>
+  );
+}
+
+function EventsContent({
+  events,
+}: {
+  events: PresetEvent[];
+}) {
+  const columns: Column<PresetEvent>[] = [
+    {
+      key: "title",
+      header: "Title",
+      sortable: true,
+      render: (evt) => (
+        <div className="flex items-center gap-2 font-medium">
+          <Calendar className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+          <span>{evt.title}</span>
+        </div>
+      ),
+    },
+    {
+      key: "date",
+      header: "Scheduled Time",
+      sortable: true,
+      sortValue: (evt) => new Date(`${evt.date}T${evt.time.replace(" PM", "").replace(" AM", "")}`).getTime(),
+      render: (evt) => <span className="tabular-nums">{evt.date} · {evt.time}</span>,
+    },
+    {
+      key: "location",
+      header: "Location",
+      sortable: true,
+      render: (evt) => <span className="text-muted-foreground">{evt.location}</span>,
+    },
+    {
+      key: "organizer",
+      header: "Organizer",
+      sortable: true,
+      render: (evt) => <span className="font-mono text-xs text-muted-foreground">{evt.organizer}</span>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (evt) => (
+        <span className={cn(
+          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium uppercase text-[9px] border",
+          evt.status === "confirmed" && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+          evt.status === "tentative" && "bg-amber-500/10 text-amber-400 border-amber-500/20",
+          evt.status === "cancelled" && "bg-rose-500/10 text-rose-400 border-rose-500/20"
+        )}>
+          {evt.status}
+        </span>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground">
+        Stellar node registration and verification events.
+      </p>
+      <AdminDataTable
+        data={events}
+        columns={columns}
+        defaultSortKey="date"
+      />
     </div>
   );
 }
@@ -365,29 +560,48 @@ function AuditContent({
 }: {
   auditEvents: PresetAuditEvent[];
 }) {
+  const columns: Column<PresetAuditEvent>[] = [
+    {
+      key: "action",
+      header: "Action",
+      sortable: true,
+      render: (evt) => (
+        <div className="flex items-center gap-2">
+          <Shield className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="font-medium">{evt.action}</span>
+        </div>
+      ),
+    },
+    {
+      key: "actor",
+      header: "Actor",
+      sortable: true,
+      render: (evt) => <span className="font-mono text-xs text-muted-foreground">{evt.actor}</span>,
+    },
+    {
+      key: "timestamp",
+      header: "Timestamp",
+      sortable: true,
+      sortValue: (evt) => new Date(evt.timestamp).getTime(),
+      render: (evt) => (
+        <span className="text-muted-foreground tabular-nums">
+          {new Date(evt.timestamp).toLocaleString()}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
         Recent demo protocol events. No real user data or message body content is recorded.
       </p>
-      <div className="space-y-2">
-        {auditEvents.map((evt, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-3 rounded-lg border border-white/[0.04] bg-white/[0.01] px-4 py-3"
-          >
-            <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/[0.04]">
-              <Shield className="h-3 w-3 text-muted-foreground" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm text-foreground">{evt.action}</p>
-              <p className="text-xs text-muted-foreground">
-                {evt.actor} &middot; {new Date(evt.timestamp).toLocaleTimeString()}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <AdminDataTable
+        data={auditEvents}
+        columns={columns}
+        defaultSortKey="timestamp"
+        defaultSortDirection="desc"
+      />
     </div>
   );
 }
@@ -409,6 +623,8 @@ export function DemoAdminDashboard({ className }: DemoAdminDashboardProps) {
   const stats = activePreset ? activePreset.stats : OVERVIEW_STATS;
   const accounts = activePreset ? activePreset.accounts : ACCOUNTS_FAKE;
   const mail = activePreset ? activePreset.mail : MAIL_FIXTURES;
+  const attachments = activePreset ? activePreset.attachments : ATTACHMENTS_FAKE;
+  const events = activePreset ? activePreset.events : EVENTS_FAKE;
   const auditEvents = activePreset ? activePreset.auditEvents : AUDIT_EVENTS_FAKE;
 
   const selectedAccount = accounts.find((a) => a.address === selectedAccountAddress);
@@ -530,6 +746,14 @@ export function DemoAdminDashboard({ className }: DemoAdminDashboardProps) {
               selectedMailSubject={selectedMailSubject}
               setSelectedMailSubject={setSelectedMailSubject}
             />
+          )}
+
+          {activeSection === "attachments" && (
+            <AttachmentsContent attachments={attachments} />
+          )}
+
+          {activeSection === "events" && (
+            <EventsContent events={events} />
           )}
 
           {activeSection === "templates" && <TemplatesContent />}

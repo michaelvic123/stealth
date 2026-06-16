@@ -17,6 +17,8 @@ describe("demo admin dashboard presets", () => {
       expect(scenario.stats.length).toBeGreaterThan(0);
       expect(scenario.accounts.length).toBeGreaterThan(0);
       expect(scenario.mail.length).toBeGreaterThan(0);
+      expect(scenario.attachments.length).toBeGreaterThan(0);
+      expect(scenario.events.length).toBeGreaterThan(0);
       expect(scenario.auditEvents.length).toBeGreaterThan(0);
 
       // Verify stats shape
@@ -33,6 +35,27 @@ describe("demo admin dashboard presets", () => {
         expect(acct.type.trim()).not.toBe("");
       }
 
+      // Verify attachments shape
+      for (const att of scenario.attachments) {
+        expect(att.id.trim()).not.toBe("");
+        expect(att.fileName.trim()).not.toBe("");
+        expect(att.fileSize.trim()).not.toBe("");
+        expect(att.fileType.trim()).not.toBe("");
+        expect(att.messageSubject.trim()).not.toBe("");
+        expect(att.sender.trim()).not.toBe("");
+      }
+
+      // Verify events shape
+      for (const evt of scenario.events) {
+        expect(evt.id.trim()).not.toBe("");
+        expect(evt.title.trim()).not.toBe("");
+        expect(evt.date.trim()).not.toBe("");
+        expect(evt.time.trim()).not.toBe("");
+        expect(evt.location.trim()).not.toBe("");
+        expect(evt.organizer.trim()).not.toBe("");
+        expect(["confirmed", "tentative", "cancelled"]).toContain(evt.status);
+      }
+
       // Verify audit events shape
       for (const event of scenario.auditEvents) {
         expect(event.action.trim()).not.toBe("");
@@ -46,6 +69,16 @@ describe("demo admin dashboard presets", () => {
     for (const scenario of PRESET_SCENARIOS) {
       for (const item of scenario.mail) {
         expect(item.email).toMatch(/(\*stealth\.demo|@example\.(com|org))$/);
+      }
+      for (const item of scenario.attachments) {
+        if (item.sender.includes("@") || item.sender.includes("*")) {
+          expect(item.sender).toMatch(/(\*stealth\.demo|@example\.(com|org))$/);
+        }
+      }
+      for (const item of scenario.events) {
+        if (item.organizer.includes("@") || item.organizer.includes("*")) {
+          expect(item.organizer).toMatch(/(\*stealth\.demo|@example\.(com|org))$/);
+        }
       }
     }
   });

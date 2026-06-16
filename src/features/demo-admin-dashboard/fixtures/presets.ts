@@ -68,6 +68,27 @@ export const PRESET_SCENARIOS: PresetScenario[] = [
         avatarColor: "#5b6470",
       },
     ],
+    attachments: [
+      {
+        id: "att-relay-spec",
+        fileName: "relay_specification.json",
+        fileSize: "4.2 KB",
+        fileType: "JSON",
+        messageSubject: "Your relay verification code",
+        sender: "relay07*stealth.demo",
+      },
+    ],
+    events: [
+      {
+        id: "evt-relay-register",
+        title: "Relay Node 07 Registration",
+        date: "2026-06-16",
+        time: "12:00 PM",
+        location: "Stellar Network",
+        organizer: "GDREL...OWNR",
+        status: "tentative",
+      },
+    ],
     auditEvents: [
       { action: "Relay Node 07 registration initiated", actor: "relay07*stealth.demo", timestamp: "2026-06-16T12:00:00Z" },
       { action: "Authorization OTP generated and dispatched", actor: "system", timestamp: "2026-06-16T12:01:00Z" },
@@ -152,6 +173,35 @@ export const PRESET_SCENARIOS: PresetScenario[] = [
         },
       },
     ],
+    attachments: [
+      {
+        id: "att-soroban-tx",
+        fileName: "soroban_transaction.tx",
+        fileSize: "12.8 KB",
+        fileType: "Transaction Payload",
+        messageSubject: "Soroban proof generation pending",
+        sender: "bridge*stealth.demo",
+      },
+      {
+        id: "att-invoice-1042",
+        fileName: "invoice_1042.pdf",
+        fileSize: "120 KB",
+        fileType: "PDF Document",
+        messageSubject: "Message request awaiting approval",
+        sender: "gckn...n4xq@example.com",
+      },
+    ],
+    events: [
+      {
+        id: "evt-proof-schedule",
+        title: "Soroban Proof Ledger Verification",
+        date: "2026-06-16",
+        time: "12:12 PM",
+        location: "Soroban VM",
+        organizer: "system",
+        status: "tentative",
+      },
+    ],
     auditEvents: [
       { action: "Incoming bridge message captured", actor: "bridge*stealth.demo", timestamp: "2026-06-16T12:10:00Z" },
       { action: "Postage preimage submitted to escrow contract", actor: "bridge*stealth.demo", timestamp: "2026-06-16T12:11:00Z" },
@@ -226,6 +276,27 @@ export const PRESET_SCENARIOS: PresetScenario[] = [
           signature: "Ed25519 [0x0a0a0a0a0a0a0a0a0a0a0af31b]",
           postageStatus: "settled",
         },
+      },
+    ],
+    attachments: [
+      {
+        id: "att-read-proof",
+        fileName: "read_receipt.proof",
+        fileSize: "2.1 KB",
+        fileType: "Cryptographic Proof",
+        messageSubject: "Delivery receipt settled",
+        sender: "receipts*stealth.demo",
+      },
+    ],
+    events: [
+      {
+        id: "evt-postage-release",
+        title: "Postage Release Settlement",
+        date: "2026-06-16",
+        time: "11:05 PM",
+        location: "Soroban Contract CCLC7...RECP",
+        organizer: "system",
+        status: "confirmed",
       },
     ],
     auditEvents: [

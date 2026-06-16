@@ -20,6 +20,8 @@ export type {
   DashboardSection,
   DemoAdminDashboardProps,
   StatCard,
+  PresetAttachment,
+  PresetEvent,
 } from "./types";
 
 export {
