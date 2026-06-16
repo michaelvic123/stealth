@@ -59,3 +59,76 @@ export interface StatCard {
   delta?: string;
 }
 
+export type PresetId = "none" | "relay-verification" | "proof-pending" | "receipt-settlement";
+
+export interface PresetAccount {
+  name: string;
+  address: string;
+  balance: string;
+  type: string;
+  relayMetadata?: {
+    nodeUri: string;
+    latency: string;
+    signatureScheme: string;
+    status: "verified" | "pending" | "failed";
+    owner: string;
+  };
+}
+
+export interface PresetMail {
+  subject: string;
+  status: string;
+  folder: string;
+  from: string;
+  email: string;
+  body: string;
+  time: string;
+  unread: boolean;
+  starred: boolean;
+  labels: string[];
+  avatarColor: string;
+  postageAmount?: string;
+  verifiedSender?: boolean;
+  receiptState?: "none" | "pending" | "sent";
+  proofMetadata?: {
+    messageHash: string;
+    paymentHash: string;
+    diagnosticId: string;
+    contractAddress: string;
+    latency: string;
+    signature: string;
+    postageStatus: "pending" | "settled" | "refunded";
+  };
+}
+
+export interface PresetAuditEvent {
+  action: string;
+  actor: string;
+  timestamp: string;
+}
+
+export interface PresetScenario {
+  id: PresetId;
+  name: string;
+  description: string;
+  stats: StatCard[];
+  accounts: PresetAccount[];
+  mail: PresetMail[];
+  auditEvents: PresetAuditEvent[];
+}
+
+export interface DemoUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface DemoItem {
+  id: string;
+  title: string;
+  description: string;
+}
+
+
+

@@ -1,5 +1,5 @@
-
-export { DemoAdminDashboard } from "./components/DemoAdminDashboard";
+export { DemoAdminDashboard } from "./DemoAdminDashboard";
+export { DemoAdminDashboard as DemoAdminLayoutDashboard } from "./components/DemoAdminDashboard";
 export {
   ADMIN_DASHBOARD_MIN_SUPPORTED_WIDTH,
   getAdminDashboardBreakpoint,
@@ -16,14 +16,10 @@ export type {
   AdminDashboardLayoutCheck,
   AdminDashboardPanel,
   AdminDashboardWidthNote,
-=======
-export { DemoAdminDashboard } from "./DemoAdminDashboard";
-export type {
   DashboardNavItem,
   DashboardSection,
   DemoAdminDashboardProps,
   StatCard,
-
 } from "./types";
 
 export {
