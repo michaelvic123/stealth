@@ -16,6 +16,12 @@ function clampPreferences(prefs: LayoutPreferences): LayoutPreferences {
   };
 }
 
+function isSameLayout(a: LayoutPreferences, b: LayoutPreferences) {
+  return (Object.keys(defaultLayoutPreferences) as Array<keyof LayoutPreferences>).every((key) =>
+    Object.is(a[key], b[key]),
+  );
+}
+
 export function useLayoutPreferences() {
   const [layout, setLayout] = useState<LayoutPreferences>(defaultLayoutPreferences);
   const [hydrated, setHydrated] = useState(false);
@@ -39,11 +45,16 @@ export function useLayoutPreferences() {
   }, [hydrated, layout]);
 
   const setLayoutPreference = useCallback((patch: Partial<LayoutPreferences>) => {
-    setLayout((prev: LayoutPreferences) => ({ ...prev, ...patch }));
+    setLayout((prev: LayoutPreferences) => {
+      const next = clampPreferences({ ...prev, ...patch });
+      return isSameLayout(prev, next) ? prev : next;
+    });
   }, []);
 
   const resetLayout = useCallback(() => {
-    setLayout(defaultLayoutPreferences);
+    setLayout((prev) =>
+      isSameLayout(prev, defaultLayoutPreferences) ? prev : defaultLayoutPreferences,
+    );
   }, []);
 
   return { layout, setLayout: setLayoutPreference, resetLayout, hydrated };
