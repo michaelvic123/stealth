@@ -29,7 +29,7 @@ describe("Idempotency Service", () => {
 
   it("checks and records idempotency records properly in repository", async () => {
     const repository = new MemoryApiRepository();
-    
+
     // initially empty
     const check1 = await checkIdempotency(repository, actor1, rawKey);
     expect(check1).toBeNull();

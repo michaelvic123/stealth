@@ -3,9 +3,7 @@ import type { ApiRepository } from "./repository";
 import type { IdempotencyRecord } from "./domain";
 
 export function hashIdempotencyKey(actor: string, rawKey: string): string {
-  return createHash("sha256")
-    .update(`${actor}:${rawKey}`)
-    .digest("hex");
+  return createHash("sha256").update(`${actor}:${rawKey}`).digest("hex");
 }
 
 export async function checkIdempotency(
