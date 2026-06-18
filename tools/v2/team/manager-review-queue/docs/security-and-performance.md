@@ -10,15 +10,15 @@
 
 ### Attack Vectors and Mitigations
 
-| Vector | Example | Mitigation |
-|--------|---------|------------|
-| **Path traversal in IDs** | `../../etc/passwd` | `validateReviewId` rejects anything that is not `[a-zA-Z0-9_-]+` |
-| **XSS via free-text fields** | `<script>alert(1)</script>` in a review note | `sanitizeNote` / `sanitizeSubject` strip control characters; downstream renderers must HTML-escape output |
-| **SQL injection in IDs** | `review; DROP TABLE reviews--` | ID allowlist regex rejects spaces and special characters |
-| **CRLF / header injection via email** | `user@evil.test\r\nBcc: victim` | `validateSubmitterEmail` rejects any string containing `\r`, `\n`, or `\0` |
-| **Null byte injection** | `user\0@evil.test` | Same control-character check in email validator |
-| **Allowlist bypass via case variation** | `"PENDING"`, `"CRITICAL"` | Status and priority validators use an exact-match `Set` — case differences are rejected |
-| **Oversized string DoS** | 50 000-character reviewId sent to a lookup | Each field has a length cap enforced before any further processing |
+| Vector                                  | Example                                      | Mitigation                                                                                                |
+| --------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Path traversal in IDs**               | `../../etc/passwd`                           | `validateReviewId` rejects anything that is not `[a-zA-Z0-9_-]+`                                          |
+| **XSS via free-text fields**            | `<script>alert(1)</script>` in a review note | `sanitizeNote` / `sanitizeSubject` strip control characters; downstream renderers must HTML-escape output |
+| **SQL injection in IDs**                | `review; DROP TABLE reviews--`               | ID allowlist regex rejects spaces and special characters                                                  |
+| **CRLF / header injection via email**   | `user@evil.test\r\nBcc: victim`              | `validateSubmitterEmail` rejects any string containing `\r`, `\n`, or `\0`                                |
+| **Null byte injection**                 | `user\0@evil.test`                           | Same control-character check in email validator                                                           |
+| **Allowlist bypass via case variation** | `"PENDING"`, `"CRITICAL"`                    | Status and priority validators use an exact-match `Set` — case differences are rejected                   |
+| **Oversized string DoS**                | 50 000-character reviewId sent to a lookup   | Each field has a length cap enforced before any further processing                                        |
 
 ### Design Choices
 
@@ -68,13 +68,13 @@ Tags are iterated during filtering and display.
 
 Short-circuit rejection of oversized strings prevents expensive downstream processing.
 
-| Field | Limit | Rationale |
-|-------|-------|-----------|
-| `reviewId` | 128 chars | Prevents lookup table abuse with artificially long keys |
-| `submitterEmail` | 254 chars | RFC 5321 maximum |
-| `note` | 4 000 chars | Caps storage and render cost |
-| `subject` | 998 chars | RFC 5322 line limit |
-| `tag` | 64 chars | No real tag exceeds this |
+| Field            | Limit       | Rationale                                               |
+| ---------------- | ----------- | ------------------------------------------------------- |
+| `reviewId`       | 128 chars   | Prevents lookup table abuse with artificially long keys |
+| `submitterEmail` | 254 chars   | RFC 5321 maximum                                        |
+| `note`           | 4 000 chars | Caps storage and render cost                            |
+| `subject`        | 998 chars   | RFC 5322 line limit                                     |
+| `tag`            | 64 chars    | No real tag exceeds this                                |
 
 ### Future Performance Considerations
 

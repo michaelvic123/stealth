@@ -149,10 +149,7 @@ describe("validateSubmitterEmail", () => {
   });
 
   it("throws for oversized email", () => {
-    assert.throws(
-      () => validateSubmitterEmail("a".repeat(250) + "@x.test"),
-      ReviewValidationError,
-    );
+    assert.throws(() => validateSubmitterEmail("a".repeat(250) + "@x.test"), ReviewValidationError);
   });
 });
 
