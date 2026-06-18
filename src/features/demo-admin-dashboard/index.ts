@@ -52,6 +52,16 @@ export {
 } from "./utils/tagOperations";
 
 export {
+  normalizeTagName,
+  toTagSlug,
+  resolveTagSlug,
+  normalizeTagColor,
+  assignTagOrders,
+  normalizeCampaignTag,
+  normalizeCampaignTags,
+} from "./utils/tagNormalization";
+
+export {
   saveCampaignTags,
   loadCampaignTags,
   clearCampaignTags,
@@ -70,24 +80,34 @@ export {
   type MessageTemplate,
   type TemplateCategory,
 } from "./templates";
+
 export * from "./validation-types";
 export * from "./validation";
 export * from "./validationFixtures";
 export { ValidationResultsPanel } from "./ValidationResultsPanel";
 export type { ValidationResultsPanelProps } from "./ValidationResultsPanel";
 
+export { AdminSearchBar } from "./AdminSearchBar";
+export type { AdminSearchBarProps } from "./AdminSearchBar";
+
+export { CampaignMessageAssignmentPanel } from "./components/CampaignMessageAssignmentPanel";
+export { MessagePicker } from "./components/MessagePicker";
+
+export type { AssignableMessage, AssignmentState } from "./types/assignment";
+
 export {
-  applyBulkTagEdit,
-  normalizeTag,
-  normalizeTags,
-  parseTagInput,
-  summarizeBulkTagEdit,
-} from "./bulkTagEditor";
-export type {
-  BulkTagOperation,
-  BulkTagCampaignChange,
-  BulkTagAuditSummary,
-  BulkTagEditResult,
-} from "./bulkTagEditor";
-export { BulkTagEditor } from "./components/BulkTagEditor";
-export type { BulkTagEditorProps } from "./components/BulkTagEditor";
+  getAssignedMessages,
+  isMessageAssigned,
+  assignMessage,
+  unassignMessage,
+  getCampaignsForMessage,
+  assignToManyCampaigns,
+} from "./utils/assignmentHelpers";
+
+export {
+  saveAssignments,
+  loadAssignments,
+  clearAssignments,
+} from "./persistence/localStorageAdapter";
+
+export { messagePool, defaultAssignmentState } from "./fixtures/assignmentFixtures";

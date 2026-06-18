@@ -29,7 +29,8 @@ import {
 } from "./composeValidation";
 import { DeliveryEstimator, type RelayStatus } from "./DeliveryEstimator";
 
-const emptyBlockedRecipients: string[] = [];
+const EMPTY_BLOCKED: string[] = [];
+const EMPTY_RESOLVED: RecipientReadiness[] = [];
 
 export function Compose({
   open,
@@ -40,7 +41,7 @@ export function Compose({
   initialBody = "",
   initialPostage = "0.0001",
   mode = "compose",
-  blockedRecipients = emptyBlockedRecipients,
+  blockedRecipients = EMPTY_BLOCKED,
   onSubmit,
   resolutionContext,
 }: {
@@ -105,12 +106,12 @@ export function Compose({
       setTo("");
       setSubject("");
       setBody("");
-      setAttachments((current) => (current.length ? [] : current));
+      setAttachments([]);
       setEmojiOpen(false);
       setEncrypted(true);
       setReceipt(true);
       setPostage(initialPostage);
-      setResolvedRecipients((current) => (current.length ? [] : current));
+      setResolvedRecipients(EMPTY_RESOLVED);
     }
   }, [open, initialTo, initialSubject, initialBody, initialPostage]);
 
@@ -135,7 +136,9 @@ export function Compose({
   useEffect(() => {
     const addresses = parseRecipients(to);
     if (!addresses.length) {
-      setResolvedRecipients((current) => (current.length ? [] : current));
+      if (resolvedRecipients.length > 0) {
+        setResolvedRecipients(EMPTY_RESOLVED);
+      }
       return;
     }
 
@@ -157,7 +160,7 @@ export function Compose({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [to, blockedRecipients, postage, resolutionContext]);
+  }, [to, blockedRecipients, postage, resolutionContext, resolvedRecipients.length]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
