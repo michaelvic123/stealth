@@ -53,7 +53,7 @@ export function buildWriteJobs(
 ): PolicyWriteJob[] {
   return rows
     .filter((r) => !r.error)
-    .map((row) => {
+    .map((row): PolicyWriteJob | null => {
       const effectiveTrust = row.trust === "default" ? fallbackTrust : row.trust;
       if (effectiveTrust === "default") return null;
 

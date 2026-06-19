@@ -39,5 +39,4 @@ export type {
   DataRetentionPolicy,
   ImportSession,
   MigrationStep,
-  ContactRef,
 } from "./types";
