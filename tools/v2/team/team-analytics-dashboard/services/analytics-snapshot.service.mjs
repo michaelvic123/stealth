@@ -8,11 +8,17 @@ function computeSnapshotStatus(report) {
     return "blocked";
   }
 
-  if (report.openBacklog >= WATCH_BACKLOG_THRESHOLD && report.averageFirstResponseHours >= HIGH_RESPONSE_TIME_THRESHOLD) {
+  if (
+    report.openBacklog >= WATCH_BACKLOG_THRESHOLD &&
+    report.averageFirstResponseHours >= HIGH_RESPONSE_TIME_THRESHOLD
+  ) {
     return "needs-attention";
   }
 
-  if (report.openBacklog >= HEALTHY_BACKLOG_THRESHOLD || report.averageFirstResponseHours >= MEDIUM_RESPONSE_TIME_THRESHOLD) {
+  if (
+    report.openBacklog >= HEALTHY_BACKLOG_THRESHOLD ||
+    report.averageFirstResponseHours >= MEDIUM_RESPONSE_TIME_THRESHOLD
+  ) {
     return "watch";
   }
 
@@ -31,7 +37,9 @@ function buildSnapshot(report) {
     period: report.period,
     status,
     totalThreads: report.totalThreads,
-    averageFirstResponseHours: report.hasCompleteSourceData ? report.averageFirstResponseHours : null,
+    averageFirstResponseHours: report.hasCompleteSourceData
+      ? report.averageFirstResponseHours
+      : null,
     openBacklog: report.openBacklog,
     sourceReportId: report.id,
     reviewRequired: requiresReview({ status }),

@@ -7,12 +7,18 @@ function classifyMemberStatus(member) {
     return "away";
   }
 
-  const isOverloaded = member.openThreads > OVERLOAD_OPEN_THRESHOLD || member.slaBreaches > OVERLOAD_SLA_BREACH_THRESHOLD;
+  const isOverloaded =
+    member.openThreads > OVERLOAD_OPEN_THRESHOLD ||
+    member.slaBreaches > OVERLOAD_SLA_BREACH_THRESHOLD;
   if (isOverloaded) {
     return "overloaded";
   }
 
-  if (member.openThreads === 0 && member.resolvedThreads > 0 && member.emailsHandled === member.emailsReceived) {
+  if (
+    member.openThreads === 0 &&
+    member.resolvedThreads > 0 &&
+    member.emailsHandled === member.emailsReceived
+  ) {
     return "underutilized";
   }
 
@@ -20,7 +26,9 @@ function classifyMemberStatus(member) {
 }
 
 function computeAvgResponseTime(members) {
-  const activeMembers = members.filter((m) => m.status !== "away" && m.avgResponseTimeHours !== null);
+  const activeMembers = members.filter(
+    (m) => m.status !== "away" && m.avgResponseTimeHours !== null,
+  );
   if (activeMembers.length === 0) return null;
   const total = activeMembers.reduce((sum, m) => sum + m.avgResponseTimeHours, 0);
   return Math.round((total / activeMembers.length) * 10) / 10;
@@ -35,9 +43,8 @@ function findTopPerformer(members) {
 }
 
 function findBottleneck(members) {
-  return members.reduce((max, current) =>
-    current.openThreads > max.openThreads ? current : max,
-  ).memberId;
+  return members.reduce((max, current) => (current.openThreads > max.openThreads ? current : max))
+    .memberId;
 }
 
 function findReviewRequired(members) {
