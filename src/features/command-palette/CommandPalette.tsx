@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
@@ -42,12 +42,14 @@ export function CommandPalette({
   const [confirming, setConfirming] = useState<ResolvedCommand | null>(null);
 
   const sections = useMemo(() => buildPaletteModel(context, q, emails), [context, q, emails]);
-  const selectable = useMemo(() => selectableRows(sections), [sections]);
-  const selectableIndexByKey = useMemo(() => {
+
+  // Derive selectable rows and their index map in a single pass.
+  const { selectable, selectableIndexByKey } = useMemo(() => {
+    const rows = selectableRows(sections);
     const map = new Map<string, number>();
-    selectable.forEach((row, index) => map.set(row.key, index));
-    return map;
-  }, [selectable]);
+    rows.forEach((row, i) => map.set(row.key, i));
+    return { selectable: rows, selectableIndexByKey: map };
+  }, [sections]);
 
   // Reset transient state when opening/closing or when the query changes.
   useEffect(() => {
@@ -61,7 +63,7 @@ export function CommandPalette({
     setActiveIndex((index) => Math.min(index, Math.max(0, selectable.length - 1)));
   }, [selectable.length]);
 
-  const activate = (row: PaletteRow) => {
+  const activate = useCallback((row: PaletteRow) => {
     switch (row.type) {
       case "command": {
         if (!row.command.availability.enabled) return;
@@ -90,7 +92,7 @@ export function CommandPalette({
         onClose();
         return;
     }
-  };
+  }, [onRunCommand, onClose, onNavigate, onSelectEmail, onOpenSettings]);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (confirming) {
@@ -206,7 +208,7 @@ export function CommandPalette({
   );
 }
 
-function PaletteSectionView({
+const PaletteSectionView = memo(function PaletteSectionView({
   section,
   activeIndex,
   selectableIndexByKey,
@@ -239,9 +241,9 @@ function PaletteSectionView({
       })}
     </>
   );
-}
+});
 
-function RowView({
+const RowView = memo(function RowView({
   row,
   active,
   onHover,
@@ -309,7 +311,7 @@ function RowView({
       </button>
     </li>
   );
-}
+});
 
 type RowMeta = { Icon: LucideIcon; label: string; sub?: string; hint?: string; danger?: boolean };
 

@@ -3,6 +3,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Keyboard, Search, Slash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SHORTCUT_DEFINITIONS } from "./shortcuts";
+import { fuzzyScore } from "./search";
+
+// Pre-compute the search corpus for each shortcut once — avoids re-joining
+// arrays on every keystroke inside the filter loop.
+const SHORTCUT_SEARCH_TEXT = SHORTCUT_DEFINITIONS.map((s) =>
+  [s.label, s.description, s.keys.join(" "), s.keywords.join(" "), s.conflict ?? ""]
+    .join(" ")
+    .toLowerCase(),
+);
 
 type Props = {
   open: boolean;
@@ -28,18 +37,13 @@ export function ShortcutOverlay({ open, onClose }: Props) {
   const shortcuts = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return SHORTCUT_DEFINITIONS;
-    return SHORTCUT_DEFINITIONS.filter((shortcut) =>
-      [
-        shortcut.label,
-        shortcut.description,
-        shortcut.keys.join(" "),
-        shortcut.keywords.join(" "),
-        shortcut.conflict ?? "",
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q),
-    );
+    return SHORTCUT_DEFINITIONS.map((shortcut, i) => ({
+      shortcut,
+      score: fuzzyScore(q, SHORTCUT_SEARCH_TEXT[i]),
+    }))
+      .filter((entry) => entry.score >= 0)
+      .sort((a, b) => b.score - a.score)
+      .map((entry) => entry.shortcut);
   }, [query]);
 
   return (

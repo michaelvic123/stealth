@@ -7,6 +7,28 @@ import {
   type ResolvedCommand,
 } from "./types";
 
+// ---------------------------------------------------------------------------
+// Command resolution cache
+// buildCommands is pure but touches every COMMANDS entry on each keystroke.
+// Cache the last two results keyed on (email id, folder) — the only two
+// CommandContext fields that affect availability. Two slots covers the common
+// case of toggling between a selected and no-selection state.
+// ---------------------------------------------------------------------------
+type CacheEntry = { emailId: string | null; folder: string; commands: ResolvedCommand[] };
+const _cmdCache: [CacheEntry | null, CacheEntry | null] = [null, null];
+
+function getCachedCommands(ctx: CommandContext): ResolvedCommand[] {
+  const emailId = ctx.email?.id ?? null;
+  const { folder } = ctx;
+  for (const entry of _cmdCache) {
+    if (entry && entry.emailId === emailId && entry.folder === folder) return entry.commands;
+  }
+  const commands = buildCommands(ctx);
+  _cmdCache[1] = _cmdCache[0];
+  _cmdCache[0] = { emailId, folder, commands };
+  return commands;
+}
+
 export type SettingShortcut = { id: string; label: string; keywords: string[] };
 
 /** Searchable jump targets into the settings modal. */
@@ -99,7 +121,7 @@ export function buildPaletteModel(
   query: string,
   emails: Email[],
 ): PaletteSection[] {
-  const commands = buildCommands(ctx);
+  const commands = getCachedCommands(ctx);
   const q = query.trim();
 
   if (!q) {
