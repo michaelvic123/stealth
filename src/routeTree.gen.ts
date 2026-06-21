@@ -25,6 +25,7 @@ import { Route as ApiV1PoliciesOwnerRouteImport } from './routes/api/v1/policies
 import { Route as ApiV1ReceiptsMessageIdReadRouteImport } from './routes/api/v1/receipts/$messageId/read'
 import { Route as ApiV1PostageMessageIdSettleRouteImport } from './routes/api/v1/postage/$messageId/settle'
 import { Route as ApiV1PostageMessageIdRefundRouteImport } from './routes/api/v1/postage/$messageId/refund'
+import { Route as ApiV1AssetsDiscoveryStellarIndexRouteImport } from './routes/api/v1/assets/discovery/stellar/index'
 import { Route as ApiV1PoliciesOwnerSendersSenderRouteImport } from './routes/api/v1/policies/$owner/senders/$sender'
 
 const MotionGalleryRoute = MotionGalleryRouteImport.update({
@@ -110,6 +111,12 @@ const ApiV1PostageMessageIdRefundRoute =
     path: '/refund',
     getParentRoute: () => ApiV1PostageMessageIdRoute,
   } as any)
+const ApiV1AssetsDiscoveryStellarIndexRoute =
+  ApiV1AssetsDiscoveryStellarIndexRouteImport.update({
+    id: '/api/v1/assets/discovery/stellar/',
+    path: '/api/v1/assets/discovery/stellar/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiV1PoliciesOwnerSendersSenderRoute =
   ApiV1PoliciesOwnerSendersSenderRouteImport.update({
     id: '/senders/$sender',
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/api/v1/postage/$messageId/settle': typeof ApiV1PostageMessageIdSettleRoute
   '/api/v1/receipts/$messageId/read': typeof ApiV1ReceiptsMessageIdReadRoute
   '/api/v1/policies/$owner/senders/$sender': typeof ApiV1PoliciesOwnerSendersSenderRoute
+  '/api/v1/assets/discovery/stellar/': typeof ApiV1AssetsDiscoveryStellarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -154,6 +162,7 @@ export interface FileRoutesByTo {
   '/api/v1/postage/$messageId/settle': typeof ApiV1PostageMessageIdSettleRoute
   '/api/v1/receipts/$messageId/read': typeof ApiV1ReceiptsMessageIdReadRoute
   '/api/v1/policies/$owner/senders/$sender': typeof ApiV1PoliciesOwnerSendersSenderRoute
+  '/api/v1/assets/discovery/stellar': typeof ApiV1AssetsDiscoveryStellarIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -174,6 +183,7 @@ export interface FileRoutesById {
   '/api/v1/postage/$messageId/settle': typeof ApiV1PostageMessageIdSettleRoute
   '/api/v1/receipts/$messageId/read': typeof ApiV1ReceiptsMessageIdReadRoute
   '/api/v1/policies/$owner/senders/$sender': typeof ApiV1PoliciesOwnerSendersSenderRoute
+  '/api/v1/assets/discovery/stellar/': typeof ApiV1AssetsDiscoveryStellarIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/api/v1/postage/$messageId/settle'
     | '/api/v1/receipts/$messageId/read'
     | '/api/v1/policies/$owner/senders/$sender'
+    | '/api/v1/assets/discovery/stellar/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/api/v1/postage/$messageId/settle'
     | '/api/v1/receipts/$messageId/read'
     | '/api/v1/policies/$owner/senders/$sender'
+    | '/api/v1/assets/discovery/stellar'
   id:
     | '__root__'
     | '/'
@@ -233,6 +245,7 @@ export interface FileRouteTypes {
     | '/api/v1/postage/$messageId/settle'
     | '/api/v1/receipts/$messageId/read'
     | '/api/v1/policies/$owner/senders/$sender'
+    | '/api/v1/assets/discovery/stellar/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -249,6 +262,7 @@ export interface RootRouteChildren {
   ApiV1ReceiptsMessageIdRoute: typeof ApiV1ReceiptsMessageIdRouteWithChildren
   ApiV1PostageIndexRoute: typeof ApiV1PostageIndexRoute
   ApiV1ReceiptsIndexRoute: typeof ApiV1ReceiptsIndexRoute
+  ApiV1AssetsDiscoveryStellarIndexRoute: typeof ApiV1AssetsDiscoveryStellarIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -365,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1PostageMessageIdRefundRouteImport
       parentRoute: typeof ApiV1PostageMessageIdRoute
     }
+    '/api/v1/assets/discovery/stellar/': {
+      id: '/api/v1/assets/discovery/stellar/'
+      path: '/api/v1/assets/discovery/stellar'
+      fullPath: '/api/v1/assets/discovery/stellar/'
+      preLoaderRoute: typeof ApiV1AssetsDiscoveryStellarIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/v1/policies/$owner/senders/$sender': {
       id: '/api/v1/policies/$owner/senders/$sender'
       path: '/senders/$sender'
@@ -429,6 +450,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiV1ReceiptsMessageIdRoute: ApiV1ReceiptsMessageIdRouteWithChildren,
   ApiV1PostageIndexRoute: ApiV1PostageIndexRoute,
   ApiV1ReceiptsIndexRoute: ApiV1ReceiptsIndexRoute,
+  ApiV1AssetsDiscoveryStellarIndexRoute: ApiV1AssetsDiscoveryStellarIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
